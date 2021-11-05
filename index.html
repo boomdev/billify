@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="worker-src 'self' blob:; img-src 'self' data:; default-src 'self'; script-src 'self'"
+    />
+    <meta
+      http-equiv="X-Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Billify - Paper Wallet Generator</title>
+    <meta name="description" content="Paper Wallet Generator" />
+    <meta name="author" content="BoomDev" />
+
+    <meta property="og:title" content="Paper Wallet Generator" />
+    <meta property="og:type" content="website" />
+    <!-- <meta
+      property="og:url"
+      content="https://billify"
+    /> -->
+    <meta property="og:description" content="Paper Wallet Generator" />
+    <!-- <meta property="og:image" content="image.png" /> -->
+
+    <!-- <link rel="icon" href="/favicon.ico" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" /> -->
+
+    <link rel="stylesheet" href="css/reset.css" />
+    <link rel="stylesheet" href="css/styles.css?v=1.0" />
+    <script type="module" src="js/imports.js"></script>
+  </head>
+
+  <body>
+    <div id="selectCoin">
+      <div class="container">
+        <h1>Please select your coin:</h1>
+        <div class="coin">
+          <img src="images/BTC-24.png" /><span class="label"
+            >Bitcoin (BTC)</span
+          >
+        </div>
+        <div class="next">
+          <button id="nextStepBtn1" type="button">Next</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="generate">
+      <div class="container">
+        <h1>
+          Adding randomness to your keys:
+          <b><span id="mousemovelimit"></span></b>
+        </h1>
+        <p id="seedpool"></p>
+        <p id="infoMsg">
+          MOVE your mouse around in the box below to reach 100%
+        </p>
+        <div id="mouseBox" class="mouse-box"></div>
+        <p id="txtBoxLbl">
+          You can also type random characters in the textbox below:
+        </p>
+        <input type="text" id="generatekeyinput" />
+        <br />
+        <div class="buttons">
+          <button id="startOverBtn1" class="secondary">Start Over</button>
+          <div class="grow"></div>
+          <button id="nextStepBtn2" disabled>Next</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="paperarea">
+      <div id="parameters" class="container">
+        <h1>Generate your paper wallet(s):</h1>
+        <div class="option">
+          <label id="paperlabelhideart" for="paperart">Hide Art?</label>
+          <input type="checkbox" id="paperart" />
+        </div>
+        <div class="option">
+          <label id="paperlabeladdressestogenerate" for="paperlimit">
+            Number of wallets to generate:
+          </label>
+          <input type="text" id="paperlimit" value="1" />
+        </div>
+        <div class="option">
+          <label id="paperlabeladdressesperpage" for="paperlimitperpage">
+            Number of wallets per page:
+          </label>
+          <input type="text" id="paperlimitperpage" value="1" />
+        </div>
+        <div class="option">
+          <label id="paperlabelencrypt" for="paperencrypt"
+            >BIP38 Encrypt?</label
+          >
+          <input type="checkbox" id="paperencrypt" />
+        </div>
+        <div class="option">
+          <label id="paperlabelBIPpassphrase" for="paperpassphrase">
+            Passphrase:
+          </label>
+          <input type="text" id="paperpassphrase" disabled />
+        </div>
+        <div class="buttons">
+          <button id="papergenerate" type="button">Generate</button>
+          <button
+            type="button"
+            name="print"
+            id="paperprint"
+            class="print"
+            disabled
+          >
+            Print
+          </button>
+          <button id="startOverBtn2" class="secondary">Start Over</button>
+        </div>
+      </div>
+      <div class="container">
+        <div id="busyblock"></div>
+        <div id="paperkeyarea"></div>
+      </div>
+    </div>
+
+    <div class="container no-print">
+      <div>
+        <span id="statusoffline"></span>
+        <span id="statuscrypto"></span>
+        <span id="statusprotocol"></span>
+        <span id="statusunittests"></span>
+        <span id="statuskeypool"></span>
+
+        <div class="tooltips">
+          <div class="tooltip" id="statusofflinegood">
+            <span class="statusgood" id="statuslabelofflinegood"
+              >&#10004; Good!</span
+            >
+            <span id="statuslabelofflinegood1">You are offline</span>
+            <br /><br /><button type="button" id="statusokofflinegood">
+              OK
+            </button>
+          </div>
+          <div class="tooltip" id="statusofflinebad">
+            <span class="statusbad" id="statuslabelofflinebad"
+              >&#9888; Oh no!</span
+            >
+            <span id="statuslabelofflinebad1"
+              >You are NOT offline, your machine could be spied on! It would be
+              safer to use this app when offline.</span
+            >
+            <br /><br /><button type="button" id="statusokofflinebad">
+              OK
+            </button>
+          </div>
+          <div class="tooltip" id="statuscryptogood">
+            <span class="statusgood" id="statuslabelcryptogood"
+              >&#10004; Good!</span
+            >
+            <span id="statuslabelcryptogood1"
+              >Your browser can generate cryptographically random keys using
+              window.crypto.getRandomValues</span
+            >
+            <br /><br /><button type="button" id="statusokcryptogood">
+              OK
+            </button>
+          </div>
+          <div class="tooltip" id="statuscryptobad">
+            <span class="statusbad" id="statuslabelcryptobad"
+              >&times; Oh no!</span
+            >
+            <span id="statuslabelcryptobad1"
+              >Your browser does NOT support window.crypto.getRandomValues. You
+              should use a more modern browser with this generator to increase
+              the security of the keys generated.</span
+            >
+            <br /><br /><button type="button" id="statusokcryptobad">OK</button>
+          </div>
+          <div class="tooltip" id="statusunittestsgood">
+            <span class="statusgood" id="statuslabelunittestsgood"
+              >&#10004; Good!</span
+            >
+            <span id="statuslabelunittestsgood1"
+              >All synchronous unit tests passed.</span
+            >
+            <br /><br /><button type="button" id="statusokunittestsgood">
+              OK
+            </button>
+          </div>
+          <div class="tooltip" id="statusunittestsbad">
+            <span class="statusbad" id="statuslabelunittestsbad"
+              >&times; Oh no!</span
+            >
+            <span id="statuslabelunittestsbad1"
+              >Some synchronous unit tests DID NOT pass. You should find another
+              browser to use with this generator.</span
+            >
+            <br /><br /><button type="button" id="statusokunittestsbad">
+              OK
+            </button>
+          </div>
+          <div class="tooltip" id="statusprotocolgood">
+            <span class="statusgood" id="statuslabelprotocolgood"
+              >&#10004; Good!</span
+            >
+            <span id="statuslabelprotocolgood1"
+              >You are running this generator from your local computer.
+              <br />Tip: Double check you are offline by trying
+            </span>
+            <a href="http://www.google.com" target="_blank">www.google.com</a>
+            <br /><br /><button type="button" id="statusokprotocolgood">
+              OK
+            </button>
+          </div>
+          <div class="tooltip" id="statusprotocolbad">
+            <span class="statuswarn" id="statuslabelprotocolbad"
+              >&#9888; Think twice!</span
+            >
+            <span id="statuslabelprotocolbad1"
+              >You appear to be running this generator online from a live
+              website. For valuable wallets it is recommended to</span
+            >
+            <a
+              id="statuslabelprotocolbad2"
+              href="https://github.com/boomdev/billify/archive/v//version.zip"
+              >download</a
+            >
+            <span id="statuslabelprotocolbad3"
+              >the zip file from GitHub and run this generator offline as a
+              local html file.</span
+            >
+            <br /><br /><button type="button" id="statusokprotocolbad">
+              OK
+            </button>
+          </div>
+          <div class="tooltip" id="statuskeypoolgood">
+            <span id="statuslabelkeypool1"
+              >This is a log of all the Bitcoin Addresses and Private Keys you
+              generated during your current session. Reloading the page will
+              create a new session.</span
+            >
+            <textarea rows="20" cols="102" id="keypooltextarea"></textarea>
+
+            <br /><br />
+            <input
+              type="button"
+              value="Refresh"
+              class="button"
+              id="statuskeypoolrefresh"
+            />
+            <input
+              type="button"
+              value="OK"
+              class="button"
+              id="statusokkeypool"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="js/index.js"></script>
+    <!-- ADDING EXTRA ELEMENTS SO WE DON'T HAVE TO MODIFY ninja.seeder.js -->
+    <div class="hide">
+      <div id="seedpooldisplay"></div>
+      <span id="singlewallet"></span>
+      <span id="paperwallet"></span>
+      <span id="bulkwallet"></span>
+      <span id="brainwallet"></span>
+      <span id="vanitywallet"></span>
+      <span id="splitwallet"></span>
+      <span id="detailwallet"></span>
+      <span id="keypooltextarea"></span>
+    </div>
+  </body>
+</html>
